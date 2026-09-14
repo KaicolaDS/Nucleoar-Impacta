@@ -1,19 +1,57 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# NÚCLEAR — Sistema de Gerenciamento de Serviços de Ar-Condicionado
 
-# Run and deploy your AI Studio app
+Projeto acadêmico desenvolvido para a disciplina de **Projeto de Software**, com foco no desenvolvimento de um sistema para gerenciamento de clientes, equipamentos, serviços e ordens de serviço de uma empresa de instalação e manutenção de sistemas de ar-condicionado.
 
-This contains everything you need to run your app locally.
+O projeto está sendo desenvolvido de forma incremental, com novas funcionalidades sendo adicionadas a cada entrega acadêmica.
 
-View your app in AI Studio: https://ai.studio/apps/85a2678a-4dcb-41d7-99b8-28eced9f04c1
+## Objetivo do Projeto
 
-## Run Locally
+Desenvolver uma solução integrada para auxiliar no gerenciamento dos serviços de uma empresa de ar-condicionado, permitindo controlar clientes, equipamentos, serviços e ordens de serviço.
 
-**Prerequisites:**  Node.js
+A aplicação possui uma arquitetura composta por **Front-end, Back-end e Banco de Dados**, permitindo a integração e persistência das informações.
 
+## Tecnologias Utilizadas
 
-1. Install dependencies:
-   `npm install`
-2. Run the app:
-   `npm run dev`
+- React
+- TypeScript
+- C#
+- ASP.NET Core Web API
+- Entity Framework Core
+- SQL Server
+- Git
+- GitHub
+
+## AC1 — Gerenciamento de Clientes
+
+A primeira entrega do projeto tem como foco o **cadastro e gerenciamento de clientes**.
+
+### Principais funcionalidades
+
+- Cadastro de clientes
+- Listagem de clientes
+- Consulta de clientes
+- Exclusão de clientes
+- Validação dos dados informados
+- Persistência dos dados no banco de dados
+
+### Dados cadastrados
+
+- Nome
+- Telefone
+- E-mail
+- Endereço
+
+### Integração
+
+A funcionalidade utiliza o seguinte fluxo:
+
+```text
+React
+   ↓
+ASP.NET Core Web API
+   ↓
+Entity Framework Core
+   ↓
+SQL Server
+   ↓
+TB_CLIENTE
