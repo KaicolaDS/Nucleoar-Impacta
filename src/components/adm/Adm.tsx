@@ -323,16 +323,13 @@ export default function Adm() {
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500">
-              <Wind
-                className="text-white"
-                size={22}
-              />
+    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-500">
+              <img src="./img/logo/iconColorida.png" alt="Núcleo Ar" />
             </div>
 
             <div>
               <h1 className="text-lg font-black text-gray-900">
-                NÚCLEAR
+                NÚCLEOAR
               </h1>
 
               <p className="text-[9px] font-semibold tracking-[0.2em] text-gray-400">
@@ -476,7 +473,7 @@ export default function Adm() {
               </h1>
 
               <p className="mt-1 text-sm text-gray-500">
-                Gerencie os clientes da NÚCLEAR.
+                Gerencie os clientes da NÚCLEOAR.
               </p>
 
             </div>
@@ -609,7 +606,7 @@ export default function Adm() {
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  Lista de clientes da NÚCLEAR
+                  Lista de clientes da NÚCLEOAR
                 </p>
 
               </div>
@@ -839,7 +836,7 @@ export default function Adm() {
 
                   {busca
                     ? 'Tente pesquisar por outro nome, e-mail ou telefone.'
-                    : 'Cadastre o primeiro cliente para começar a gerenciar os atendimentos da NÚCLEAR.'}
+                    : 'Cadastre o primeiro cliente para começar a gerenciar os atendimentos da NÚCLEOAR.'}
 
                 </p>
 

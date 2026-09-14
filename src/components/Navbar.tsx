@@ -29,15 +29,13 @@ export default function Navbar() {
             href="#inicio"
             className="flex items-center gap-2"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500">
-              <span className="text-xl font-black text-white">
-                N
-              </span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-500">
+              <img src="./img/logo/iconColorida.png" alt="Núcleo Ar" />
             </div>
 
             <div className="flex flex-col leading-none">
               <span className="text-xl font-black tracking-tight text-gray-900">
-                NÚCLEAR
+                NÚCLEOAR
               </span>
 
               <span className="text-[9px] font-semibold tracking-[0.25em] text-gray-500">
@@ -102,15 +100,15 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* BOTÃO ADMIN DESKTOP */}
-          <div className="hidden md:block">
-            <a
-              href="/admin"
-              className="WhatsappButton"
-            >
-              Painel Administrativo
-            </a>
-          </div>
+            {/* BOTÃO ADMIN DESKTOP */}
+              <div className="hidden md:block">
+<a
+  href="/admin"
+  className="WhatsappButton bg-gradient-to-br from-[#007cf0] to-[#008ec7] text-white px-6 py-3 rounded-xl"
+>
+  Painel Administrativo
+</a>
+              </div>
 
           {/* BOTÃO MENU MOBILE */}
           <button

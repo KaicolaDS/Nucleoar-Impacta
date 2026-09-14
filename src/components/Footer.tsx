@@ -158,9 +158,7 @@ export default function Footer() {
 
           <p className="footerCopyright">
             © 2026 Núcleo Ar Climatização. Todos os direitos reservados.&nbsp;
-            <a href="https://apolus.vercel.app/" className="footerApolusLink">
-              Desenvolvido por Apoluss
-            </a>
+     
  
           </p>
 

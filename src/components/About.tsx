@@ -101,14 +101,9 @@ export default function About() {
 
             {/* MISSÃO VISÃO VALORES */}
             <div className="aboutMissaoVisaoValores">
-              <a
-                href="https://nucleoar.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="aboutLink btnBrand"
-              >
+    
                 Conheça nossa história <ArrowRight />
-              </a>
+           
             </div>
             <div className="aboutFeatures">{/* FEATURES */}</div>
           </motion.div>
