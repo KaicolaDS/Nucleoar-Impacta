@@ -1,0 +1,6 @@
+@Nuclear.Api_HostAddress = http://localhost:5185
+
+GET {{Nuclear.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

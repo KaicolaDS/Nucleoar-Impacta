@@ -1,0 +1,430 @@
+.about {
+    position: relative;
+    overflow: hidden;
+    padding: var(--section-padding-y) 0 0;
+    background: #ffffff;
+    color: var(--text-primary);
+}
+
+/* GRID BACKGROUND */
+.about::before {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+
+  background-size: 40px 40px;
+
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+
+  pointer-events: none;
+}
+
+.aboutBackground {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.aboutBlur {
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  border-radius: 999px;
+
+  filter: blur(120px);
+}
+
+.aboutMissaoVisaoValores{
+  display: flex;
+  justify-content: flex-start;
+}
+
+.aboutContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.aboutBlurPrimary {
+  top: 10%;
+  left: -10%;
+
+  background: rgba(1, 113, 177, 0.18);
+}
+
+.aboutBlurSecondary {
+  bottom: 0;
+  right: -10%;
+
+  background: rgba(0, 46, 109, 0.16);
+}
+
+.aboutContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.aboutTitleContainer {
+  width: 100%;
+  max-width: 100%;
+}
+
+.aboutTitleContainer .aboutTitle {
+  text-align: left;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+
+/* GRID */
+.aboutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 520px;
+  gap: 56px;
+  align-items: start;
+}
+
+/* LEFT CONTENT */
+.aboutDescription {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--text-body);
+  text-align: justify;
+  margin-top: 10px;
+}
+
+/* BUTTON */
+.aboutLink {
+  margin-top: 50px;
+  justify-content: space-between;
+  width: fit-content;
+}
+
+/* FEATURES */
+.aboutFeatures {
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+
+  margin-top: 42px;
+  margin-bottom: 60px;
+}
+
+.aboutFeature {
+  display: flex;
+  gap: 18px;
+
+  padding: 24px;
+
+  border-radius: var(--radius-card);
+
+  background: rgba(255, 255, 255, 0.75);
+
+  border: 1px solid rgba(15, 23, 42, 0.05);
+
+  backdrop-filter: blur(12px);
+
+  transition: 0.35s ease;
+}
+
+.aboutFeature:hover {
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 15px 35px rgba(15, 23, 42, 0.08);
+}
+
+.aboutFeatureIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 58px;
+  height: 58px;
+
+  border-radius: var(--radius-icon);
+
+  background: linear-gradient(135deg, #00304c, #0171b1);
+}
+
+.aboutFeatureIcon {
+  width: 24px;
+  height: 24px;
+
+  color: white;
+}
+
+.aboutFeatureTitle {
+  margin-bottom: 6px;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.aboutFeatureText {
+  color: #64748b;
+  line-height: 1.7;
+}
+
+
+/* IMAGE */
+.aboutImageWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.aboutImageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  background: radial-gradient(circle,
+      rgba(1, 113, 177, 0.22),
+      transparent 70%);
+  filter: blur(90px);
+  z-index: 0;
+}
+
+.aboutImageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8 / 8;
+  overflow: hidden;
+  z-index: 10;
+  border-radius: 42px;
+  transition: 0.5s ease;
+}
+
+.aboutImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 34px;
+}
+
+.aboutImageOverlay {
+  position: absolute;
+  inset: 8px;
+  border-radius: 34px;
+  background: linear-gradient(to top,
+      rgba(15, 23, 42, 0.5),
+      transparent 45%);
+}
+
+/* DECORATIONS */
+.aboutDecoration {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  filter: blur(60px);
+}
+
+.aboutDecorationTop {
+  top: -50px;
+  right: -50px;
+
+  background: rgba(40, 120, 150, 0.18);
+}
+
+.aboutDecorationBottom {
+  bottom: -50px;
+  left: -50px;
+
+  background: rgba(0, 46, 109, 0.16);
+}
+
+/* FLOATING CARD */
+.aboutFloatingCard {
+  position: absolute;
+
+  right: 35px;
+  bottom: 35px;
+
+  z-index: 20;
+
+  max-width: 220px;
+
+  padding: 26px;
+
+  border-radius: 28px;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background:
+    linear-gradient(135deg,
+      rgba(1, 113, 177, 0.96),
+      rgba(0, 46, 109, 0.96));
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 20px 45px rgba(1, 113, 177, 0.35);
+}
+
+.aboutFloatingValue {
+  margin-bottom: 6px;
+
+  font-size: 40px;
+  font-weight: 800;
+
+  color: white;
+}
+
+.aboutFloatingText {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.aboutInstitutional {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  margin: 36px 0;
+}
+
+.institutionalCard {
+  padding: 20px 24px;
+
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-icon);
+
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+
+  transition: 0.3s ease;
+}
+
+.institutionalCard:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(1, 113, 177, 0.25);
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.institutionalCard h4 {
+  margin-bottom: 10px;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  color: #0171b1;
+}
+
+.institutionalCard p {
+  margin: 0;
+
+  line-height: 1.7;
+  color: #475569;
+}
+
+/* RESPONSIVO */
+@media (max-width: 1100px) {
+  .aboutGrid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .aboutTitleContainer .aboutTitle {
+    font-size: clamp(1.35rem, 4vw, 2rem);
+  }
+
+  .aboutTitleContainer {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .aboutContainer {
+    gap: 36px;
+  }
+
+  .containerTitle {
+    margin-bottom: 32px;
+  }
+
+  .aboutTitleContainer .aboutTitle {
+    font-size: clamp(1.35rem, 5.5vw, 2rem);
+    text-align: left;
+  }
+
+  .aboutDescription {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .aboutLink {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+
+  .aboutStats {
+    grid-template-columns: 1fr;
+  }
+
+  .aboutFloatingCard {
+    right: 20px;
+    bottom: 20px;
+    max-width: 180px;
+    padding: 20px;
+  }
+
+  .aboutFloatingValue {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about {
+    padding: 56px 0;
+  }
+
+  .aboutContainer {
+    padding: 0 16px;
+  }
+
+  .aboutTitle,
+  .aboutTitleContainer .aboutTitle {
+    font-size: 1.35rem;
+  }
+
+  .aboutFeature {
+    flex-direction: column;
+  }
+
+  .aboutImageContainer {
+    border-radius: 28px;
+  }
+
+  .aboutImage {
+    border-radius: 20px;
+  }
+
+  .aboutLink {
+    padding: 14px 18px;
+    font-size: 14px;
+  }
+}

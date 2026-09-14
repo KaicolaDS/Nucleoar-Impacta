@@ -1,0 +1,96 @@
+.trustedSection {
+  position: relative;
+  padding: var(--section-padding-y) 0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.trustedBackground {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(1, 113, 177, 0.05),
+    transparent 70%
+  );
+}
+
+.trustedContainer {
+  position: relative;
+  z-index: 2;
+}
+
+.trustedSlider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 32px;
+  margin-top: 24px;
+  overflow-x: auto;
+}
+
+.trustedCard {
+  width: 180px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trustedLogo {
+  width: 110px;
+  object-fit: contain;
+  transition: all 0.4s ease;
+}
+
+.trustedDescription {
+  max-width: 700px;
+  margin: 24px auto 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .trustedSlider {
+    gap: 16px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+
+  .trustedSlider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .trustedCard {
+    flex-shrink: 0;
+    width: 130px;
+    height: 80px;
+  }
+
+  .trustedLogo {
+    width: 85px;
+  }
+
+  .trustedDescription {
+    font-size: 15px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .trustedCard {
+    width: 110px;
+    height: 72px;
+  }
+
+  .trustedLogo {
+    width: 72px;
+  }
+}

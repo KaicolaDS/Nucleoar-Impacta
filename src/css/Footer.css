@@ -1,0 +1,358 @@
+.footer {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-brand);
+  padding-top: 40px;
+  padding-bottom: 5px;
+  isolation: isolate;
+}
+
+/* =========================================
+   BACKGROUND EFFECTS
+========================================= */
+.footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('./img/logo/iconBranco.png');
+  background-repeat: no-repeat;
+  background-size: 320px;
+  background-position: right;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.footerGlow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: -200px;
+  right: -120px;
+  border-radius: 50%;
+  background: rgba(1, 145, 228, 0.12);
+  filter: blur(120px);
+  z-index: 0;
+}
+
+.footerContainer {
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================
+   TOP SECTION
+========================================= */
+.footerTop {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 50px;
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.footerLogoBox {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  align-content: center;
+  justify-content: flex-start;
+  gap: 15px;
+}
+
+.footerLogo {
+  width: 180px;
+  object-fit: contain;
+}
+
+.footerDescription {
+  max-width: 420px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.footerBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  flex-direction: row;
+  align-items: center;
+}
+
+.footerBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 12px 16px;
+  border-radius: var(--radius-btn);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================================
+   COLUMNS
+========================================= */
+.footerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.footerTitle {
+  color: white;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  margin-bottom: 8px;
+}
+
+.footerLinkItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.footerLinkItem:hover {
+  transform: translateX(4px);
+  color: white;
+}
+
+.footerText {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+}
+
+/* ================= MAPA ================= */
+
+.footerLocationInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  white-space: normal;
+  color: white;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.footerMapWrapper {
+  width: 100%;
+  height: 205px;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25);
+
+  backdrop-filter: blur(10px);
+}
+
+.footerMap {
+  width: 100%;
+  height: 100%;
+  border: none;
+
+  filter: grayscale(0.1) contrast(1.05);
+}
+
+/* =========================================
+   CONTACT
+========================================= */
+.footerContactItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   BOTTOM
+========================================= */
+.footerBottom {
+  margin-top: 20px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.footerCopyright {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+/* =========================================
+   SOCIALS
+========================================= */
+.footerSocials {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footerSocialLink {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: white;
+
+  transition: 0.3s ease;
+}
+
+.footerSocialLink:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.footerSocialIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* =========================================
+   POLICIES
+========================================= */
+.footerPolicies {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footerPolicies a {
+  color: rgba(255, 255, 255, 0.72);
+
+  text-decoration: none;
+  font-size: 14px;
+
+  transition: 0.3s ease;
+}
+
+.footerPolicies a:hover {
+  color: white;
+}
+
+.footerApolusLink {
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: underline;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+/* =========================================
+   RESPONSIVO
+========================================= */
+@media (max-width: 1100px) {
+  .footerTop {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .footer {
+    padding-top: 56px;
+  }
+
+  .footerContainer {
+    padding: 0 20px;
+  }
+
+  .footerTop {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footerLogoBox {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footerLogo {
+    width: 150px;
+  }
+
+  .footerBottom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footerPolicies {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footerDescription {
+    max-width: 100%;
+  }
+
+  .footerContactItem {
+    flex-wrap: wrap;
+    word-break: break-word;
+  }
+
+  .footerCopyright {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .footer::before,
+  .footer::after {
+    background-size: 220px;
+    opacity: 0.02;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .footerContainer {
+    padding: 0 16px;
+  }
+
+  .footerBadge {
+    font-size: 12px;
+    padding: 10px 12px;
+    white-space: normal;
+  }
+
+  .footerMapWrapper {
+    height: 180px;
+  }
+
+  .footerSocials {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

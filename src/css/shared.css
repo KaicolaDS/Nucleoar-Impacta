@@ -1,0 +1,157 @@
+/* Design tokens & shared section patterns (Hero excluded) */
+
+:root {
+  --section-max-width: 1400px;
+  --section-padding-x: 32px;
+  --section-padding-y: 100px;
+  --radius-btn: 14px;
+  --radius-card: 24px;
+  --radius-icon: 18px;
+  --gradient-cta: linear-gradient(135deg, #007cf0, #008ec7);
+  --gradient-brand: linear-gradient(
+    135deg,
+    #00304c 0%,
+    #0171b1 45%,
+    #0191e4 80%,
+    #1aabfe 100%
+  );
+  --gradient-title: linear-gradient(90deg, #00304c, #0171b1);
+  --gradient-title-accent: linear-gradient(90deg, #00304c, #0191e4);
+  --text-primary: #0f172a;
+  --text-body: #475569;
+  --text-muted: #64748b;
+  --shadow-card: 0 10px 40px rgba(0, 46, 109, 0.08);
+  --shadow-hover: 0 14px 35px rgba(0, 46, 109, 0.12);
+}
+
+.sectionContainer {
+  width: 100%;
+  max-width: var(--section-max-width);
+  margin: 0 auto;
+  padding: 0 var(--section-padding-x);
+  box-sizing: border-box;
+}
+
+.containerTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 100%;
+  padding: 0 8px;
+}
+
+.sectionHeaderCentralize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.sectionHeaderCentralize .line {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #0171b1, transparent);
+}
+
+.sectionTag {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0171b1;
+}
+
+.titleDividerCentralize {
+  width: min(100%, 120px);
+  height: 4px;
+  margin: 24px auto 0;
+  border-radius: 999px;
+  background: var(--gradient-cta);
+}
+
+.sectionTitle,
+.aboutTitle,
+.locationsTitle {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.sectionTitle span,
+.aboutTitle span,
+.locationsTitle span {
+  background: var(--gradient-title-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btnBrand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--gradient-cta);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btnBrand:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.nucleoarLogo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.rotatingLogo {
+  animation: rotateLogo 8s linear infinite;
+}
+
+@keyframes rotateLogo {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-padding-x: 20px;
+    --section-padding-y: 72px;
+  }
+
+  .sectionHeaderCentralize .line {
+    width: 40px;
+  }
+
+  .sectionTitle,
+  .aboutTitle,
+  .locationsTitle {
+    font-size: clamp(1.75rem, 5.5vw, 2.25rem);
+  }
+}
