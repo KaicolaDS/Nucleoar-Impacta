@@ -13,1012 +13,644 @@ import {
   Search,
   Pencil,
   Trash2,
-  UserPlus,
 } from 'lucide-react';
 
+import Equipamentos from '../Equipamentos';
+
+const API_URL = 'http://localhost:5000/api/Clientes';
+
 interface Cliente {
-  id: number;
+  idCliente: number;
   nome: string;
   telefone: string;
   email: string;
   endereco: string;
 }
 
-// IMPORTANTE:
-// Troque 7000 pela porta HTTPS mostrada pelo "dotnet run"
-const API_URL = 'http://localhost:5185/api/Clientes';
+type SecaoAtiva = 'dashboard' | 'clientes' | 'equipamentos';
 
 export default function Adm() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [busca, setBusca] = useState('');
+  const [carregando, setCarregando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+
+  const [secaoAtiva, setSecaoAtiva] =
+    useState<SecaoAtiva>('clientes');
+
+  const [clienteEditando, setClienteEditando] =
+    useState<number | null>(null);
 
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [endereco, setEndereco] = useState('');
 
-  const [busca, setBusca] = useState('');
-
-  const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-
-  /*
-   * ============================================================
-   * CARREGAR CLIENTES DA API
-   * ============================================================
-   */
-
   useEffect(() => {
-    carregarClientes();
+    void carregarClientes();
   }, []);
 
-  const carregarClientes = async () => {
+  async function carregarClientes() {
     try {
       setCarregando(true);
 
       const resposta = await fetch(API_URL);
 
       if (!resposta.ok) {
-        throw new Error('Não foi possível carregar os clientes.');
+        throw new Error('Erro ao carregar clientes.');
       }
 
       const dados = await resposta.json();
-
-      const clientesFormatados: Cliente[] = dados.map(
-        (cliente: any) => ({
-          id: cliente.idCliente,
-          nome: cliente.nome,
-          telefone: cliente.telefone,
-          email: cliente.email,
-          endereco: cliente.endereco,
-        })
-      );
-
-      setClientes(clientesFormatados);
+      setClientes(dados);
     } catch (erro) {
-      console.error('Erro ao carregar clientes:', erro);
-
+      console.error(erro);
       alert(
-        'Não foi possível carregar os clientes. ' +
-        'Verifique se a API está funcionando.'
+        'Não foi possível carregar os clientes. Verifique se a API está funcionando.'
       );
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
-  /*
-   * ============================================================
-   * MODAL
-   * ============================================================
-   */
-
-  const abrirModal = () => {
+  function limparFormulario() {
     setNome('');
     setTelefone('');
     setEmail('');
     setEndereco('');
+    setClienteEditando(null);
+  }
+
+  function abrirCadastro() {
+    limparFormulario();
     setModalOpen(true);
-  };
+  }
 
-  const fecharModal = () => {
-    if (salvando) return;
+  function editarCliente(cliente: Cliente) {
+    setClienteEditando(cliente.idCliente);
+    setNome(cliente.nome ?? '');
+    setTelefone(cliente.telefone ?? '');
+    setEmail(cliente.email ?? '');
+    setEndereco(cliente.endereco ?? '');
+    setModalOpen(true);
+  }
 
-    setModalOpen(false);
-  };
+  async function salvarCliente(
+    evento: React.FormEvent<HTMLFormElement>
+  ) {
+    evento.preventDefault();
 
-  /*
-   * ============================================================
-   * CADASTRAR CLIENTE
-   * ============================================================
-   */
-
-  const cadastrarCliente = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
-
-    if (
-      !nome.trim() ||
-      !telefone.trim() ||
-      !email.trim() ||
-      !endereco.trim()
-    ) {
-      alert('Preencha todos os campos.');
+    if (!nome.trim()) {
+      alert('Informe o nome do cliente.');
       return;
     }
+
+    const cliente = {
+      nome: nome.trim(),
+      telefone: telefone.trim(),
+      email: email.trim(),
+      endereco: endereco.trim(),
+    };
 
     try {
       setSalvando(true);
 
-      const resposta = await fetch(API_URL, {
-        method: 'POST',
+      const editando = clienteEditando !== null;
 
+      const url = editando
+        ? `${API_URL}/${clienteEditando}`
+        : API_URL;
+
+      const corpo = editando
+        ? {
+            idCliente: clienteEditando,
+            ...cliente,
+          }
+        : cliente;
+
+      const resposta = await fetch(url, {
+        method: editando ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-
-        body: JSON.stringify({
-          nome: nome.trim(),
-          telefone: telefone.trim(),
-          email: email.trim(),
-          endereco: endereco.trim(),
-        }),
+        body: JSON.stringify(corpo),
       });
 
       if (!resposta.ok) {
-        let mensagem = 'Erro ao cadastrar cliente.';
+        const mensagem = await resposta.text();
 
-        try {
-          const erro = await resposta.json();
-
-          if (erro.mensagem) {
-            mensagem = erro.mensagem;
-          }
-        } catch {
-          // Mantém a mensagem padrão
-        }
-
-        throw new Error(mensagem);
+        throw new Error(
+          mensagem || 'Não foi possível salvar o cliente.'
+        );
       }
-
-      const clienteCriado = await resposta.json();
-
-      const novoCliente: Cliente = {
-        id: clienteCriado.idCliente,
-        nome: clienteCriado.nome,
-        telefone: clienteCriado.telefone,
-        email: clienteCriado.email,
-        endereco: clienteCriado.endereco,
-      };
-
-      setClientes((clientesAtuais) => [
-        ...clientesAtuais,
-        novoCliente,
-      ]);
-
-      setNome('');
-      setTelefone('');
-      setEmail('');
-      setEndereco('');
 
       setModalOpen(false);
+      limparFormulario();
 
-      alert('Cliente cadastrado com sucesso!');
+      await carregarClientes();
+
+      alert(
+        editando
+          ? 'Cliente atualizado com sucesso!'
+          : 'Cliente cadastrado com sucesso!'
+      );
     } catch (erro) {
-      console.error('Erro ao cadastrar cliente:', erro);
+      console.error('Erro ao salvar cliente:', erro);
 
-      if (erro instanceof Error) {
-        alert(erro.message);
-      } else {
-        alert('Erro ao cadastrar cliente.');
-      }
+      alert(
+        erro instanceof Error
+          ? erro.message
+          : 'Erro ao salvar cliente.'
+      );
     } finally {
       setSalvando(false);
     }
-  };
+  }
 
-  /*
-   * ============================================================
-   * EXCLUIR CLIENTE
-   * ============================================================
-   */
-
-  const excluirCliente = async (id: number) => {
+  async function excluirCliente(idCliente: number) {
     const confirmar = window.confirm(
       'Deseja realmente excluir este cliente?'
     );
 
-    if (!confirmar) {
-      return;
-    }
+    if (!confirmar) return;
 
     try {
       const resposta = await fetch(
-        `${API_URL}/${id}`,
+        `${API_URL}/${idCliente}`,
         {
           method: 'DELETE',
         }
       );
 
       if (!resposta.ok) {
-        let mensagem = 'Erro ao excluir cliente.';
+        const mensagem = await resposta.text();
 
-        try {
-          const erro = await resposta.json();
-
-          if (erro.mensagem) {
-            mensagem = erro.mensagem;
-          }
-        } catch {
-          // Mantém a mensagem padrão
-        }
-
-        throw new Error(mensagem);
+        throw new Error(
+          mensagem || 'Não foi possível excluir o cliente.'
+        );
       }
 
-      setClientes((clientesAtuais) =>
-        clientesAtuais.filter(
-          (cliente) => cliente.id !== id
-        )
-      );
+      await carregarClientes();
 
       alert('Cliente excluído com sucesso!');
     } catch (erro) {
       console.error('Erro ao excluir cliente:', erro);
 
-      if (erro instanceof Error) {
-        alert(erro.message);
-      } else {
-        alert('Erro ao excluir cliente.');
-      }
-    }
-  };
-
-  /*
-   * ============================================================
-   * FILTRO DE PESQUISA
-   * ============================================================
-   */
-
-  const clientesFiltrados = clientes.filter(
-    (cliente) => {
-      const termo = busca.toLowerCase();
-
-      return (
-        cliente.nome
-          .toLowerCase()
-          .includes(termo) ||
-        cliente.email
-          .toLowerCase()
-          .includes(termo) ||
-        cliente.telefone.includes(termo)
+      alert(
+        erro instanceof Error
+          ? erro.message
+          : 'Erro ao excluir cliente.'
       );
     }
-  );
+  }
 
-  /*
-   * ============================================================
-   * INTERFACE
-   * ============================================================
-   */
+  const clientesFiltrados = clientes.filter((cliente) => {
+    const termo = busca.toLowerCase();
+
+    return (
+      (cliente.nome ?? '').toLowerCase().includes(termo) ||
+      (cliente.email ?? '').toLowerCase().includes(termo) ||
+      (cliente.telefone ?? '').toLowerCase().includes(termo)
+    );
+  });
+
+  if (secaoAtiva === 'equipamentos') {
+    return (
+      <Equipamentos
+        onVoltar={() => setSecaoAtiva('clientes')}
+      />
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 text-gray-800">
+      {/* Cabeçalho mobile */}
+      <div className="flex items-center justify-between border-b bg-white p-4 lg:hidden">
+        <div className="flex items-center gap-2">
+          <Wind className="text-sky-600" size={25} />
+          <span className="text-xl font-bold">NÚCLEOAR</span>
+        </div>
 
-      {/* ======================================================
-          OVERLAY MOBILE
-      ======================================================= */}
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label="Abrir menu"
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* ======================================================
-          SIDEBAR
-      ======================================================= */}
-
-      <aside
-        className={`
-          fixed left-0 top-0 z-50 flex h-screen w-72
-          flex-col border-r border-gray-200 bg-white
-          transition-transform duration-300
-          lg:translate-x-0
-          ${
-            sidebarOpen
-              ? 'translate-x-0'
-              : '-translate-x-full'
-          }
-        `}
-      >
-
-        {/* LOGO */}
-
-        <div className="flex h-20 items-center justify-between border-b border-gray-100 px-6">
-
-          <div className="flex items-center gap-3">
-
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-500">
-              <img src="./img/logo/iconColorida.png" alt="Núcleo Ar" />
+      <div className="flex min-h-screen">
+        {/* Menu lateral */}
+        <aside
+          className={`
+            fixed inset-y-0 left-0 z-40 flex w-64 flex-col
+            border-r border-gray-100 bg-white p-5
+            transition-transform duration-200
+            lg:static lg:translate-x-0
+            ${
+              sidebarOpen
+                ? 'translate-x-0'
+                : '-translate-x-full'
+            }
+          `}
+        >
+          <div className="mb-10 flex items-center gap-3 px-2">
+            <div className="rounded-xl bg-sky-100 p-2 text-sky-600">
+              <Wind size={27} />
             </div>
 
             <div>
-              <h1 className="text-lg font-black text-gray-900">
+              <h1 className="text-xl font-extrabold tracking-tight">
                 NÚCLEOAR
               </h1>
-
-              <p className="text-[9px] font-semibold tracking-[0.2em] text-gray-400">
-                ADMINISTRAÇÃO
+              <p className="text-xs text-gray-400">
+                Painel administrativo
               </p>
             </div>
-
           </div>
 
-          <button
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={22} />
-          </button>
-
-        </div>
-
-        {/* MENU */}
-
-        <div className="flex-1 px-4 py-6">
-
           <p className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-gray-400">
-            Menu
+            Menu principal
           </p>
 
-          <nav className="space-y-1">
-
+          <nav className="flex-1 space-y-2">
             <MenuItem
               icon={<LayoutDashboard size={19} />}
               label="Dashboard"
+              active={secaoAtiva === 'dashboard'}
+              onClick={() => {
+                setSecaoAtiva('dashboard');
+                setSidebarOpen(false);
+              }}
             />
 
             <MenuItem
               icon={<Users size={19} />}
               label="Clientes"
-              active
+              active={secaoAtiva === 'clientes'}
+              onClick={() => {
+                setSecaoAtiva('clientes');
+                setSidebarOpen(false);
+              }}
             />
 
             <MenuItem
               icon={<Wind size={19} />}
               label="Equipamentos"
+              active={secaoAtiva === 'equipamentos'}
+              onClick={() => {
+                setSecaoAtiva('equipamentos');
+                setSidebarOpen(false);
+              }}
             />
 
             <MenuItem
               icon={<Wrench size={19} />}
               label="Serviços"
+              onClick={() =>
+                alert('A tela de Serviços ainda não foi implementada.')
+              }
             />
 
             <MenuItem
               icon={<ClipboardList size={19} />}
               label="Ordens de Serviço"
+              onClick={() =>
+                alert(
+                  'A tela de Ordens de Serviço ainda não foi implementada.'
+                )
+              }
             />
 
             <MenuItem
               icon={<UserCog size={19} />}
               label="Técnicos"
+              onClick={() =>
+                alert('A tela de Técnicos ainda não foi implementada.')
+              }
             />
-
           </nav>
 
-        </div>
-
-        {/* USUÁRIO */}
-
-        <div className="border-t border-gray-100 p-4">
-
-          <div className="mb-3 flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100">
-              <UserCog
-                size={18}
-                className="text-brand-600"
-              />
-            </div>
-
-            <div className="min-w-0">
-
-              <p className="truncate text-sm font-bold text-gray-800">
-                Administrador
-              </p>
-
-              <p className="truncate text-xs text-gray-400">
-                Acesso administrativo
-              </p>
-
-            </div>
-
+          <div className="border-t border-gray-100 pt-4">
+            <MenuItem
+              icon={<LogOut size={19} />}
+              label="Sair"
+              onClick={() => {
+                window.location.href = '/';
+              }}
+            />
           </div>
-
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-gray-500 transition hover:bg-red-50 hover:text-red-500">
-            <LogOut size={18} />
-            Sair
-          </button>
-
-        </div>
-
-      </aside>
-
-      {/* ======================================================
-          CONTEÚDO
-      ======================================================= */}
-
-      <main className="lg:ml-72">
-
-        {/* HEADER MOBILE */}
-
-        <header className="flex h-20 items-center border-b border-gray-200 bg-white px-5 lg:hidden">
-
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 hover:bg-gray-100"
-          >
-            <Menu size={24} />
-          </button>
-
-          <h1 className="ml-4 text-lg font-bold text-gray-900">
-            Clientes
-          </h1>
-
-        </header>
-
-        {/* CONTEÚDO PRINCIPAL */}
-
-        <div className="p-5 sm:p-8 lg:p-10">
-
-          {/* ==================================================
-              TOPO
-          =================================================== */}
-
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-
-            <div>
-
-              <p className="mb-1 text-sm font-semibold text-brand-500">
-                Administração
-              </p>
-
-              <h1 className="text-3xl font-black text-gray-900">
-                Clientes
-              </h1>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Gerencie os clientes da NÚCLEOAR.
-              </p>
-
-            </div>
-
-            <button
-              onClick={abrirModal}
-              className="flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-600"
-            >
-              <Plus size={19} />
-              Novo cliente
-            </button>
-
-          </div>
-
-          {/* ==================================================
-              CARDS
-          =================================================== */}
-
-          <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-            {/* TOTAL */}
-
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p className="text-sm font-medium text-gray-500">
-                    Total de clientes
-                  </p>
-
-                  <p className="mt-2 text-3xl font-black text-gray-900">
-                    {clientes.length}
-                  </p>
-
-                </div>
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50">
-
-                  <Users
-                    size={23}
-                    className="text-brand-500"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* CADASTRADOS */}
-
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p className="text-sm font-medium text-gray-500">
-                    Clientes cadastrados
-                  </p>
-
-                  <p className="mt-2 text-3xl font-black text-gray-900">
-                    {clientes.length}
-                  </p>
-
-                </div>
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-
-                  <UserPlus
-                    size={23}
-                    className="text-green-500"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* EQUIPAMENTOS */}
-
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p className="text-sm font-medium text-gray-500">
-                    Equipamentos
-                  </p>
-
-                  <p className="mt-2 text-3xl font-black text-gray-900">
-                    0
-                  </p>
-
-                </div>
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
-
-                  <Wind
-                    size={23}
-                    className="text-blue-500"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ==================================================
-              LISTA
-          =================================================== */}
-
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-
-            {/* CABEÇALHO */}
-
-            <div className="flex flex-col gap-4 border-b border-gray-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-
-              <div>
-
-                <h2 className="font-bold text-gray-900">
-                  Clientes cadastrados
+        </aside>
+
+        {/* Área principal */}
+        <main className="min-w-0 flex-1 p-5 sm:p-8 lg:p-10">
+          {secaoAtiva === 'dashboard' ? (
+            <section>
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-900">
+                  Dashboard
                 </h2>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Lista de clientes da NÚCLEOAR
+                <p className="mt-2 text-gray-500">
+                  Bem-vindo ao painel administrativo da NÚCLEOAR.
                 </p>
-
               </div>
 
-              {/* PESQUISA */}
-
-              <div className="relative">
-
-                <Search
-                  size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <ResumoCard
+                  titulo="Clientes cadastrados"
+                  valor={clientes.length}
+                  icone={<Users size={24} />}
                 />
 
-                <input
-                  type="text"
-                  placeholder="Buscar cliente..."
-                  value={busca}
-                  onChange={(e) =>
-                    setBusca(e.target.value)
-                  }
-                  className="w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 sm:w-64"
+                <ResumoCard
+                  titulo="Equipamentos"
+                  valor="—"
+                  icone={<Wind size={24} />}
                 />
 
+                <ResumoCard
+                  titulo="Ordens de serviço"
+                  valor="—"
+                  icone={<ClipboardList size={24} />}
+                />
               </div>
 
-            </div>
-
-            {/* ==================================================
-                CARREGANDO
-            =================================================== */}
-
-            {carregando ? (
-
-              <div className="flex flex-col items-center justify-center px-5 py-20 text-center">
-
-                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
-
-                  <Wind
-                    size={30}
-                    className="animate-pulse text-brand-500"
-                  />
-
-                </div>
-
-                <h3 className="text-lg font-bold text-gray-900">
-                  Carregando clientes...
-                </h3>
+              <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-6">
+                <h3 className="text-lg font-bold">Acesso rápido</h3>
 
                 <p className="mt-2 text-sm text-gray-500">
-                  Buscando dados no banco de dados.
+                  Acesse o gerenciamento de clientes ou equipamentos.
                 </p>
 
-              </div>
-
-            ) : clientesFiltrados.length > 0 ? (
-
-              /* ==================================================
-                 TABELA
-              =================================================== */
-
-              <div className="overflow-x-auto">
-
-                <table className="w-full">
-
-                  <thead>
-
-                    <tr className="border-b border-gray-100 bg-gray-50/70">
-
-                      <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-400">
-                        Cliente
-                      </th>
-
-                      <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-400">
-                        Telefone
-                      </th>
-
-                      <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-400">
-                        E-mail
-                      </th>
-
-                      <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-400">
-                        Endereço
-                      </th>
-
-                      <th className="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-400">
-                        Ações
-                      </th>
-
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {clientesFiltrados.map(
-                      (cliente) => (
-
-                        <tr
-                          key={cliente.id}
-                          className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50"
-                        >
-
-                          {/* CLIENTE */}
-
-                          <td className="px-5 py-4">
-
-                            <div className="flex items-center gap-3">
-
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
-
-                                <Users
-                                  size={18}
-                                  className="text-brand-500"
-                                />
-
-                              </div>
-
-                              <div>
-
-                                <p className="text-sm font-bold text-gray-800">
-                                  {cliente.nome}
-                                </p>
-
-                                <p className="text-xs text-gray-400">
-                                  #{cliente.id}
-                                </p>
-
-                              </div>
-
-                            </div>
-
-                          </td>
-
-                          {/* TELEFONE */}
-
-                          <td className="px-5 py-4 text-sm text-gray-600">
-                            {cliente.telefone}
-                          </td>
-
-                          {/* EMAIL */}
-
-                          <td className="px-5 py-4 text-sm text-gray-600">
-                            {cliente.email}
-                          </td>
-
-                          {/* ENDEREÇO */}
-
-                          <td className="px-5 py-4 text-sm text-gray-600">
-                            {cliente.endereco}
-                          </td>
-
-                          {/* AÇÕES */}
-
-                          <td className="px-5 py-4">
-
-                            <div className="flex justify-end gap-2">
-
-                              {/* EDITAR */}
-
-                              <button
-                                className="rounded-lg p-2 text-gray-400 transition hover:bg-blue-50 hover:text-blue-500"
-                                title="Editar"
-                                onClick={() =>
-                                  alert(
-                                    'A função de edição será implementada na próxima etapa.'
-                                  )
-                                }
-                              >
-                                <Pencil size={17} />
-                              </button>
-
-                              {/* EXCLUIR */}
-
-                              <button
-                                onClick={() =>
-                                  excluirCliente(
-                                    cliente.id
-                                  )
-                                }
-                                className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                title="Excluir"
-                              >
-                                <Trash2 size={17} />
-                              </button>
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            ) : (
-
-              /* ==================================================
-                 ESTADO VAZIO
-              =================================================== */
-
-              <div className="flex flex-col items-center justify-center px-5 py-20 text-center">
-
-                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
-
-                  <Users
-                    size={30}
-                    className="text-brand-500"
-                  />
-
-                </div>
-
-                <h3 className="text-lg font-bold text-gray-900">
-
-                  {busca
-                    ? 'Nenhum cliente encontrado'
-                    : 'Nenhum cliente cadastrado'}
-
-                </h3>
-
-                <p className="mt-2 max-w-sm text-sm text-gray-500">
-
-                  {busca
-                    ? 'Tente pesquisar por outro nome, e-mail ou telefone.'
-                    : 'Cadastre o primeiro cliente para começar a gerenciar os atendimentos da NÚCLEOAR.'}
-
-                </p>
-
-                {!busca && (
+                <div className="mt-5 flex flex-wrap gap-3">
                   <button
-                    onClick={abrirModal}
-                    className="mt-6 flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-600"
+                    type="button"
+                    onClick={() => setSecaoAtiva('clientes')}
+                    className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-700"
                   >
-                    <Plus size={18} />
-                    Cadastrar primeiro cliente
+                    Gerenciar clientes
                   </button>
-                )}
 
+                  <button
+                    type="button"
+                    onClick={() => setSecaoAtiva('equipamentos')}
+                    className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold hover:bg-gray-50"
+                  >
+                    Gerenciar equipamentos
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <>
+              <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Clientes
+                  </h2>
+                  <p className="mt-2 text-gray-500">
+                    Gerencie os clientes cadastrados no sistema.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={abrirCadastro}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700"
+                >
+                  <Plus size={19} />
+                  Novo cliente
+                </button>
               </div>
 
-            )}
+              <div className="mb-6 grid gap-4 sm:grid-cols-2">
+                <ResumoCard
+                  titulo="Total de clientes"
+                  valor={clientes.length}
+                  icone={<Users size={24} />}
+                />
 
-          </div>
+                <ResumoCard
+                  titulo="Resultados da busca"
+                  valor={clientesFiltrados.length}
+                  icone={<Search size={24} />}
+                />
+              </div>
 
-        </div>
+              <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                <div className="flex flex-col gap-4 border-b border-gray-100 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold">
+                      Lista de clientes
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Consulte, edite ou exclua cadastros.
+                    </p>
+                  </div>
 
-      </main>
+                  <div className="relative w-full sm:max-w-xs">
+                    <Search
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
 
-      {/* ======================================================
-          MODAL DE CADASTRO
-      ======================================================= */}
+                    <input
+                      type="text"
+                      value={busca}
+                      onChange={(e) => setBusca(e.target.value)}
+                      placeholder="Buscar cliente..."
+                      className="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                    />
+                  </div>
+                </div>
 
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px] text-left text-sm">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                      <tr>
+                        <th className="px-6 py-4">Cliente</th>
+                        <th className="px-6 py-4">Telefone</th>
+                        <th className="px-6 py-4">E-mail</th>
+                        <th className="px-6 py-4">Endereço</th>
+                        <th className="px-6 py-4 text-right">Ações</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-gray-100">
+                      {carregando ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="px-6 py-12 text-center text-gray-500"
+                          >
+                            Carregando clientes...
+                          </td>
+                        </tr>
+                      ) : clientesFiltrados.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="px-6 py-12 text-center"
+                          >
+                            <div className="flex flex-col items-center">
+                              <Users
+                                size={35}
+                                className="mb-3 text-gray-300"
+                              />
+                              <p className="font-semibold text-gray-700">
+                                Nenhum cliente encontrado
+                              </p>
+                              <p className="mt-1 text-gray-400">
+                                Cadastre um cliente ou altere a busca.
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        clientesFiltrados.map((cliente) => (
+                          <tr
+                            key={cliente.idCliente}
+                            className="transition hover:bg-gray-50"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700">
+                                  {(cliente.nome || '?')
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </div>
+                                <span className="font-semibold text-gray-800">
+                                  {cliente.nome}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td className="px-6 py-4 text-gray-600">
+                              {cliente.telefone || '—'}
+                            </td>
+
+                            <td className="px-6 py-4 text-gray-600">
+                              {cliente.email || '—'}
+                            </td>
+
+                            <td className="px-6 py-4 text-gray-600">
+                              {cliente.endereco || '—'}
+                            </td>
+
+                            <td className="px-6 py-4">
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => editarCliente(cliente)}
+                                  title="Editar cliente"
+                                  aria-label="Editar cliente"
+                                  className="rounded-lg p-2 text-gray-500 hover:bg-sky-50 hover:text-sky-600"
+                                >
+                                  <Pencil size={17} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    excluirCliente(cliente.idCliente)
+                                  }
+                                  title="Excluir cliente"
+                                  aria-label="Excluir cliente"
+                                  className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                                >
+                                  <Trash2 size={17} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="border-t border-gray-100 px-6 py-4 text-sm text-gray-500">
+                  {clientesFiltrados.length}{' '}
+                  {clientesFiltrados.length === 1
+                    ? 'cliente exibido'
+                    : 'clientes exibidos'}
+                </div>
+              </section>
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* Modal de cadastro e edição */}
       {modalOpen && (
-
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-          onClick={fecharModal}
-        >
-
-          <div
-            className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
-
-            {/* HEADER MODAL */}
-
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50">
-
-                  <UserPlus
-                    size={21}
-                    className="text-brand-500"
-                  />
-
-                </div>
-
-                <div>
-
-                  <h2 className="text-lg font-black text-gray-900">
-                    Novo cliente
-                  </h2>
-
-                  <p className="text-xs text-gray-500">
-                    Cadastre um novo cliente
-                  </p>
-
-                </div>
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4">
+          <div className="my-auto w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold">
+                  {clienteEditando !== null
+                    ? 'Editar cliente'
+                    : 'Novo cliente'}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Preencha os dados do cliente.
+                </p>
               </div>
 
               <button
                 type="button"
-                onClick={fecharModal}
-                disabled={salvando}
-                className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                onClick={() => {
+                  setModalOpen(false);
+                  limparFormulario();
+                }}
+                aria-label="Fechar modal"
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
               >
                 <X size={21} />
               </button>
-
             </div>
 
-            {/* FORMULÁRIO */}
+            <form onSubmit={salvarCliente} className="space-y-4">
+              <Campo
+                label="Nome completo"
+                valor={nome}
+                alterar={setNome}
+                placeholder="Nome do cliente"
+                obrigatorio
+              />
 
-            <form onSubmit={cadastrarCliente}>
+              <Campo
+                label="Telefone"
+                valor={telefone}
+                alterar={setTelefone}
+                placeholder="(11) 99999-9999"
+              />
 
-              <div className="grid gap-5 px-6 py-6 sm:grid-cols-2">
+              <Campo
+                label="E-mail"
+                valor={email}
+                alterar={setEmail}
+                placeholder="cliente@email.com"
+                tipo="email"
+              />
 
-                {/* NOME */}
+              <Campo
+                label="Endereço"
+                valor={endereco}
+                alterar={setEndereco}
+                placeholder="Rua, número, bairro..."
+              />
 
-                <div className="sm:col-span-2">
-
-                  <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Nome completo
-                  </label>
-
-                  <input
-                    type="text"
-                    placeholder="Digite o nome do cliente"
-                    value={nome}
-                    onChange={(e) =>
-                      setNome(e.target.value)
-                    }
-                    disabled={salvando}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 disabled:bg-gray-100"
-                  />
-
-                </div>
-
-                {/* TELEFONE */}
-
-                <div>
-
-                  <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Telefone
-                  </label>
-
-                  <input
-                    type="tel"
-                    placeholder="(11) 99999-9999"
-                    value={telefone}
-                    onChange={(e) =>
-                      setTelefone(e.target.value)
-                    }
-                    disabled={salvando}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 disabled:bg-gray-100"
-                  />
-
-                </div>
-
-                {/* EMAIL */}
-
-                <div>
-
-                  <label className="mb-2 block text-sm font-bold text-gray-700">
-                    E-mail
-                  </label>
-
-                  <input
-                    type="email"
-                    placeholder="cliente@email.com"
-                    value={email}
-                    onChange={(e) =>
-                      setEmail(e.target.value)
-                    }
-                    disabled={salvando}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 disabled:bg-gray-100"
-                  />
-
-                </div>
-
-                {/* ENDEREÇO */}
-
-                <div className="sm:col-span-2">
-
-                  <label className="mb-2 block text-sm font-bold text-gray-700">
-                    Endereço
-                  </label>
-
-                  <input
-                    type="text"
-                    placeholder="Rua, número, bairro, cidade"
-                    value={endereco}
-                    onChange={(e) =>
-                      setEndereco(e.target.value)
-                    }
-                    disabled={salvando}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 disabled:bg-gray-100"
-                  />
-
-                </div>
-
-              </div>
-
-              {/* FOOTER */}
-
-              <div className="flex flex-col-reverse gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4 sm:flex-row sm:justify-end">
-
+              <div className="flex flex-col-reverse gap-3 pt-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={fecharModal}
-                  disabled={salvando}
-                  className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                  onClick={() => {
+                    setModalOpen(false);
+                    limparFormulario();
+                  }}
+                  className="flex-1 rounded-xl border border-gray-200 px-4 py-3 font-semibold hover:bg-gray-50"
                 >
                   Cancelar
                 </button>
@@ -1026,56 +658,46 @@ export default function Adm() {
                 <button
                   type="submit"
                   disabled={salvando}
-                  className="rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex-1 rounded-xl bg-sky-600 px-4 py-3 font-semibold text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-
                   {salvando
-                    ? 'Cadastrando...'
-                    : 'Cadastrar cliente'}
-
+                    ? 'Salvando...'
+                    : clienteEditando !== null
+                      ? 'Salvar alterações'
+                      : 'Cadastrar cliente'}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 }
-
-/*
- * ============================================================
- * COMPONENTE DO MENU
- * ============================================================
- */
 
 interface MenuItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
 function MenuItem({
   icon,
   label,
   active = false,
+  onClick,
 }: MenuItemProps) {
-
   return (
     <button
       type="button"
+      onClick={onClick}
       className={`
         flex w-full items-center gap-3 rounded-xl
         px-3 py-3 text-sm font-semibold transition
         ${
           active
-            ? 'bg-brand-50 text-brand-500'
+            ? 'bg-sky-50 text-sky-700'
             : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
         }
       `}
@@ -1083,5 +705,69 @@ function MenuItem({
       {icon}
       {label}
     </button>
+  );
+}
+
+interface ResumoCardProps {
+  titulo: string;
+  valor: string | number;
+  icone: React.ReactNode;
+}
+
+function ResumoCard({
+  titulo,
+  valor,
+  icone,
+}: ResumoCardProps) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-500">
+          {titulo}
+        </p>
+        <div className="rounded-xl bg-sky-50 p-3 text-sky-600">
+          {icone}
+        </div>
+      </div>
+
+      <p className="mt-4 text-3xl font-bold text-gray-900">
+        {valor}
+      </p>
+    </div>
+  );
+}
+
+interface CampoProps {
+  label: string;
+  valor: string;
+  alterar: (valor: string) => void;
+  placeholder?: string;
+  tipo?: string;
+  obrigatorio?: boolean;
+}
+
+function Campo({
+  label,
+  valor,
+  alterar,
+  placeholder,
+  tipo = 'text',
+  obrigatorio = false,
+}: CampoProps) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+
+      <input
+        type={tipo}
+        value={valor}
+        onChange={(e) => alterar(e.target.value)}
+        placeholder={placeholder}
+        required={obrigatorio}
+        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+      />
+    </div>
   );
 }
