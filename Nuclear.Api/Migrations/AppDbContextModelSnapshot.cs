@@ -58,6 +58,59 @@ namespace Nuclear.Api.Migrations
 
                     b.ToTable("TB_CLIENTE", (string)null);
                 });
+
+            modelBuilder.Entity("Nuclear.Api.Models.Equipamento", b =>
+                {
+                    b.Property<int>("IdEquipamento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_equipamento");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEquipamento"));
+
+                    b.Property<int>("Btus")
+                        .HasColumnType("int")
+                        .HasColumnName("btus");
+
+                    b.Property<int>("IdCliente")
+                        .HasColumnType("int")
+                        .HasColumnName("id_cliente");
+
+                    b.Property<string>("Marca")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("marca");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("modelo");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("tipo");
+
+                    b.HasKey("IdEquipamento");
+
+                    b.HasIndex("IdCliente");
+
+                    b.ToTable("TB_EQUIPAMENTO", (string)null);
+                });
+
+            modelBuilder.Entity("Nuclear.Api.Models.Equipamento", b =>
+                {
+                    b.HasOne("Nuclear.Api.Models.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("IdCliente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
 #pragma warning restore 612, 618
         }
     }

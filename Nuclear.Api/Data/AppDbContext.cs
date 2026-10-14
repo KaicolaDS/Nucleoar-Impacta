@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 using Nuclear.Api.Models;
 
@@ -11,6 +12,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Cliente> Clientes { get; set; }
+
+    public DbSet<Equipamento> Equipamentos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +47,43 @@ public class AppDbContext : DbContext
                 .HasColumnName("endereco")
                 .HasMaxLength(255)
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<Equipamento>(entity =>
+        {
+            entity.ToTable("TB_EQUIPAMENTO");
+
+            entity.HasKey(e => e.IdEquipamento);
+
+            entity.Property(e => e.IdEquipamento)
+                .HasColumnName("id_equipamento");
+
+            entity.Property(e => e.IdCliente)
+                .HasColumnName("id_cliente");
+
+            entity.Property(e => e.Marca)
+                .HasColumnName("marca")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.Modelo)
+                .HasColumnName("modelo")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.Tipo)
+                .HasColumnName("tipo")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(e => e.Btus)
+                .HasColumnName("btus")
+                .IsRequired();
+
+            entity.HasOne(e => e.Cliente)
+                .WithMany()
+                .HasForeignKey(e => e.IdCliente)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
