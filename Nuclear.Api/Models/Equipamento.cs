@@ -7,6 +7,8 @@ public class Equipamento
 
     public int IdCliente { get; set; }
 
+    public int? IdCategoria { get; set; }
+
     public string Marca { get; set; } = string.Empty;
 
     public string Modelo { get; set; } = string.Empty;
@@ -15,6 +17,7 @@ public class Equipamento
 
     public int Btus { get; set; }
 
-    // Relacionamento com o cliente
     public Cliente? Cliente { get; set; }
+
+    public Categoria? Categoria { get; set; }
 }

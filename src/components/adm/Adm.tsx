@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
@@ -13,11 +14,14 @@ import {
   Search,
   Pencil,
   Trash2,
+  Tags,
 } from 'lucide-react';
 
 import Equipamentos from '../Equipamentos';
+import Categorias from '../Categorias';
+import Servicos from '../Servicos';
 
-const API_URL = 'http://localhost:5000/api/Clientes';
+const API_URL = 'http://localhost:5185/api/Clientes';
 
 interface Cliente {
   idCliente: number;
@@ -27,7 +31,12 @@ interface Cliente {
   endereco: string;
 }
 
-type SecaoAtiva = 'dashboard' | 'clientes' | 'equipamentos';
+type SecaoAtiva =
+  | 'dashboard'
+  | 'clientes'
+  | 'equipamentos'
+  | 'categorias'
+  | 'servicos';
 
 export default function Adm() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -223,6 +232,22 @@ export default function Adm() {
     );
   }
 
+  if (secaoAtiva === 'categorias') {
+    return (
+      <Categorias
+        onVoltar={() => setSecaoAtiva('clientes')}
+      />
+    );
+  }
+
+  if (secaoAtiva === 'servicos') {
+    return (
+      <Servicos
+        onVoltar={() => setSecaoAtiva('clientes')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
       {/* Cabeçalho mobile */}
@@ -307,11 +332,23 @@ export default function Adm() {
             />
 
             <MenuItem
+              icon={<Tags size={19} />}
+              label="Categorias"
+              active={secaoAtiva === 'categorias'}
+              onClick={() => {
+                setSecaoAtiva('categorias');
+                setSidebarOpen(false);
+              }}
+            />
+
+            <MenuItem
               icon={<Wrench size={19} />}
               label="Serviços"
-              onClick={() =>
-                alert('A tela de Serviços ainda não foi implementada.')
-              }
+              active={secaoAtiva === 'servicos'}
+              onClick={() => {
+                setSecaoAtiva('servicos');
+                setSidebarOpen(false);
+              }}
             />
 
             <MenuItem
@@ -381,7 +418,7 @@ export default function Adm() {
                 <h3 className="text-lg font-bold">Acesso rápido</h3>
 
                 <p className="mt-2 text-sm text-gray-500">
-                  Acesse o gerenciamento de clientes ou equipamentos.
+                  Acesse o gerenciamento de clientes, equipamentos ou categorias.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-3">
@@ -399,6 +436,14 @@ export default function Adm() {
                     className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold hover:bg-gray-50"
                   >
                     Gerenciar equipamentos
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSecaoAtiva('categorias')}
+                    className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold hover:bg-gray-50"
+                  >
+                    Gerenciar categorias
                   </button>
                 </div>
               </div>

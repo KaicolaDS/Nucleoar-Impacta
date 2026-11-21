@@ -21,6 +21,32 @@ namespace Nuclear.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Nuclear.Api.Models.Categoria", b =>
+                {
+                    b.Property<int>("IdCategoria")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_categoria");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCategoria"));
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("IdCategoria");
+
+                    b.ToTable("TB_CATEGORIA", (string)null);
+                });
+
             modelBuilder.Entity("Nuclear.Api.Models.Cliente", b =>
                 {
                     b.Property<int>("IdCliente")
@@ -72,6 +98,9 @@ namespace Nuclear.Api.Migrations
                         .HasColumnType("int")
                         .HasColumnName("btus");
 
+                    b.Property<int?>("IdCategoria")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdCliente")
                         .HasColumnType("int")
                         .HasColumnName("id_cliente");
@@ -96,18 +125,57 @@ namespace Nuclear.Api.Migrations
 
                     b.HasKey("IdEquipamento");
 
+                    b.HasIndex("IdCategoria");
+
                     b.HasIndex("IdCliente");
 
                     b.ToTable("TB_EQUIPAMENTO", (string)null);
                 });
 
+            modelBuilder.Entity("Nuclear.Api.Models.Servico", b =>
+                {
+                    b.Property<int>("IdServico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_servico");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdServico"));
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("nome");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("valor");
+
+                    b.HasKey("IdServico");
+
+                    b.ToTable("TB_SERVICO", (string)null);
+                });
+
             modelBuilder.Entity("Nuclear.Api.Models.Equipamento", b =>
                 {
+                    b.HasOne("Nuclear.Api.Models.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("IdCategoria")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Nuclear.Api.Models.Cliente", "Cliente")
                         .WithMany()
                         .HasForeignKey("IdCliente")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Categoria");
 
                     b.Navigation("Cliente");
                 });

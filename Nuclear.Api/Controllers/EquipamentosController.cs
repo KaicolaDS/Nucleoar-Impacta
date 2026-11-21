@@ -23,6 +23,7 @@ public class EquipamentosController : ControllerBase
         var equipamentos = await _context.Equipamentos
             .AsNoTracking()
             .Include(e => e.Cliente)
+.Include(e => e.Categoria)
             .ToListAsync();
 
         return Ok(equipamentos);
@@ -34,6 +35,7 @@ public class EquipamentosController : ControllerBase
         var equipamento = await _context.Equipamentos
             .AsNoTracking()
             .Include(e => e.Cliente)
+            .Include(e => e.Categoria)
             .FirstOrDefaultAsync(e => e.IdEquipamento == id);
 
         if (equipamento == null)
@@ -46,6 +48,14 @@ public class EquipamentosController : ControllerBase
     public async Task<ActionResult<Equipamento>> CriarEquipamento(
         [FromBody] Equipamento equipamento)
     {
+        if (equipamento.IdCategoria.HasValue)
+{
+    var categoriaExiste = await _context.Categorias
+        .AnyAsync(c => c.IdCategoria == equipamento.IdCategoria);
+
+    if (!categoriaExiste)
+        return BadRequest(new { mensagem = "A categoria informada não existe." });
+}
         if (string.IsNullOrWhiteSpace(equipamento.Marca))
             return BadRequest(new { mensagem = "A marca é obrigatória." });
 
@@ -66,6 +76,7 @@ public class EquipamentosController : ControllerBase
 
         equipamento.IdEquipamento = 0;
         equipamento.Cliente = null;
+        equipamento.Categoria = null;
 
         _context.Equipamentos.Add(equipamento);
         await _context.SaveChangesAsync();
@@ -81,6 +92,15 @@ public class EquipamentosController : ControllerBase
         int id,
         [FromBody] Equipamento equipamento)
     {
+        if (equipamento.IdCategoria.HasValue)
+{
+    var categoriaExiste = await _context.Categorias
+        .AnyAsync(c => c.IdCategoria == equipamento.IdCategoria);
+
+    if (!categoriaExiste)
+        return BadRequest(new { mensagem = "A categoria informada não existe." });
+}
+
         if (id != equipamento.IdEquipamento)
             return BadRequest(new { mensagem = "O ID informado não corresponde ao equipamento." });
 
@@ -110,10 +130,12 @@ public class EquipamentosController : ControllerBase
             return NotFound(new { mensagem = "Equipamento não encontrado." });
 
         existente.IdCliente = equipamento.IdCliente;
+        existente.IdCategoria = equipamento.IdCategoria;
         existente.Marca = equipamento.Marca;
         existente.Modelo = equipamento.Modelo;
         existente.Tipo = equipamento.Tipo;
         existente.Btus = equipamento.Btus;
+        
 
         await _context.SaveChangesAsync();
 

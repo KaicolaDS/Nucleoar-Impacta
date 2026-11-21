@@ -1,3 +1,4 @@
+
 import { useEffect, useState, type FormEvent } from 'react';
 import {
   Wind,
@@ -8,23 +9,32 @@ import {
   ArrowLeft,
   X,
   Snowflake,
+  Tags,
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5185/api';
 
 interface Cliente {
   idCliente: number;
   nome: string;
 }
 
+interface Categoria {
+  idCategoria: number;
+  nome: string;
+  descricao: string;
+}
+
 interface Equipamento {
   idEquipamento: number;
   idCliente: number;
+  idCategoria?: number | null;
   marca: string;
   modelo: string;
   tipo: string;
   btus: number;
   cliente?: Cliente | null;
+  categoria?: Categoria | null;
 }
 
 interface EquipamentosProps {
@@ -33,6 +43,7 @@ interface EquipamentosProps {
 
 const equipamentoVazio = {
   idCliente: '',
+  idCategoria: '',
   marca: '',
   modelo: '',
   tipo: 'Split',
@@ -44,6 +55,7 @@ export default function Equipamentos({
 }: EquipamentosProps) {
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [busca, setBusca] = useState('');
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<number | null>(null);
@@ -55,29 +67,42 @@ export default function Equipamentos({
     setCarregando(true);
 
     try {
-      const [resEquipamentos, resClientes] = await Promise.all([
+      const [
+        resEquipamentos,
+        resClientes,
+        resCategorias,
+      ] = await Promise.all([
         fetch(`${API_URL}/Equipamentos`),
         fetch(`${API_URL}/Clientes`),
+        fetch(`${API_URL}/Categorias`),
       ]);
 
-      if (!resEquipamentos.ok || !resClientes.ok) {
+      if (
+        !resEquipamentos.ok ||
+        !resClientes.ok ||
+        !resCategorias.ok
+      ) {
         throw new Error('Não foi possível carregar os dados.');
       }
 
       const dadosEquipamentos = await resEquipamentos.json();
       const dadosClientes = await resClientes.json();
+      const dadosCategorias = await resCategorias.json();
 
       setEquipamentos(dadosEquipamentos);
+
       setClientes(
         dadosClientes.map((c: any) => ({
           idCliente: c.idCliente ?? c.id,
           nome: c.nome,
         }))
       );
+
+      setCategorias(dadosCategorias);
     } catch (erro) {
       console.error(erro);
       alert(
-        'Erro ao carregar os dados. Verifique se a API está rodando na porta 5000.'
+        'Erro ao carregar os dados. Verifique se a API está rodando na porta 5185.'
       );
     } finally {
       setCarregando(false);
@@ -96,13 +121,18 @@ export default function Equipamentos({
 
   function abrirEdicao(equipamento: Equipamento) {
     setEditando(equipamento.idEquipamento);
+
     setForm({
       idCliente: String(equipamento.idCliente),
+      idCategoria: equipamento.idCategoria
+        ? String(equipamento.idCategoria)
+        : '',
       marca: equipamento.marca,
       modelo: equipamento.modelo,
       tipo: equipamento.tipo,
       btus: String(equipamento.btus),
     });
+
     setModalAberto(true);
   }
 
@@ -119,6 +149,9 @@ export default function Equipamentos({
     const equipamento = {
       idEquipamento: editando ?? 0,
       idCliente: Number(form.idCliente),
+      idCategoria: form.idCategoria
+        ? Number(form.idCategoria)
+        : null,
       marca: form.marca.trim(),
       modelo: form.modelo.trim(),
       tipo: form.tipo,
@@ -147,7 +180,12 @@ export default function Equipamentos({
       setModalAberto(false);
       setForm(equipamentoVazio);
       await carregarDados();
-      alert(editando ? 'Equipamento atualizado!' : 'Equipamento cadastrado!');
+
+      alert(
+        editando
+          ? 'Equipamento atualizado!'
+          : 'Equipamento cadastrado!'
+      );
     } catch (erro) {
       console.error(erro);
       alert(
@@ -166,9 +204,12 @@ export default function Equipamentos({
     }
 
     try {
-      const resposta = await fetch(`${API_URL}/Equipamentos/${id}`, {
-        method: 'DELETE',
-      });
+      const resposta = await fetch(
+        `${API_URL}/Equipamentos/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!resposta.ok) {
         throw new Error('Não foi possível excluir o equipamento.');
@@ -188,7 +229,8 @@ export default function Equipamentos({
       equipamento.marca.toLowerCase().includes(termo) ||
       equipamento.modelo.toLowerCase().includes(termo) ||
       equipamento.tipo.toLowerCase().includes(termo) ||
-      (equipamento.cliente?.nome ?? '').toLowerCase().includes(termo)
+      (equipamento.cliente?.nome ?? '').toLowerCase().includes(termo) ||
+      (equipamento.categoria?.nome ?? '').toLowerCase().includes(termo)
     );
   });
 
@@ -230,7 +272,7 @@ export default function Equipamentos({
       </header>
 
       <main className="mx-auto max-w-7xl p-6">
-        <section className="mb-6 grid gap-4 sm:grid-cols-2">
+        <section className="mb-6 grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="rounded-xl bg-sky-100 p-3 text-sky-600">
@@ -262,6 +304,22 @@ export default function Equipamentos({
               </div>
             </div>
           </div>
+
+          <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-orange-100 p-3 text-orange-600">
+                <Tags size={23} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">
+                  Categorias cadastradas
+                </p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {categorias.length}
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -274,7 +332,7 @@ export default function Equipamentos({
               <input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar por marca, modelo ou cliente..."
+                placeholder="Pesquisar por marca, modelo, cliente ou categoria..."
                 className="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm outline-none focus:border-sky-500"
               />
             </div>
@@ -299,16 +357,21 @@ export default function Equipamentos({
               <table className="w-full text-left">
                 <thead className="bg-gray-50">
                   <tr>
-                    {['Equipamento', 'Tipo', 'BTUs', 'Cliente', 'Ações'].map(
-                      (titulo) => (
-                        <th
-                          key={titulo}
-                          className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-gray-500"
-                        >
-                          {titulo}
-                        </th>
-                      )
-                    )}
+                    {[
+                      'Equipamento',
+                      'Tipo',
+                      'BTUs',
+                      'Categoria',
+                      'Cliente',
+                      'Ações',
+                    ].map((titulo) => (
+                      <th
+                        key={titulo}
+                        className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-gray-500"
+                      >
+                        {titulo}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
 
@@ -341,6 +404,10 @@ export default function Equipamentos({
 
                       <td className="px-5 py-4 text-sm text-gray-600">
                         {equipamento.btus.toLocaleString('pt-BR')} BTUs
+                      </td>
+
+                      <td className="px-5 py-4 text-sm text-gray-600">
+                        {equipamento.categoria?.nome ?? 'Sem categoria'}
                       </td>
 
                       <td className="px-5 py-4 text-sm text-gray-600">
@@ -384,8 +451,8 @@ export default function Equipamentos({
       </main>
 
       {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4">
+          <div className="my-auto w-full max-w-lg rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-100 p-5">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">
@@ -433,6 +500,36 @@ export default function Equipamentos({
                 {clientes.length === 0 && (
                   <p className="mt-1 text-xs text-red-500">
                     Cadastre um cliente antes de cadastrar um equipamento.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
+                  Categoria
+                </label>
+                <select
+                  value={form.idCategoria}
+                  onChange={(e) =>
+                    setForm({ ...form, idCategoria: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none focus:border-sky-500"
+                >
+                  <option value="">Sem categoria</option>
+                  {categorias.map((categoria) => (
+                    <option
+                      key={categoria.idCategoria}
+                      value={categoria.idCategoria}
+                    >
+                      {categoria.nome}
+                    </option>
+                  ))}
+                </select>
+
+                {categorias.length === 0 && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Nenhuma categoria cadastrada. Você pode cadastrar uma
+                    pela tela de Categorias.
                   </p>
                 )}
               </div>

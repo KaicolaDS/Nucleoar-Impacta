@@ -12,9 +12,9 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Cliente> Clientes { get; set; }
-
+    public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Equipamento> Equipamentos { get; set; }
-
+    public DbSet<Servico> Servicos { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -49,6 +49,30 @@ public class AppDbContext : DbContext
                 .IsRequired();
         });
 
+        modelBuilder.Entity<Servico>(entity =>
+        {
+            entity.ToTable("TB_SERVICO");
+
+            entity.HasKey(s => s.IdServico);
+
+            entity.Property(s => s.IdServico)
+                .HasColumnName("id_servico");
+
+            entity.Property(s => s.Nome)
+                .HasColumnName("nome")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(s => s.Descricao)
+                .HasColumnName("descricao")
+                .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(s => s.Valor)
+                .HasColumnName("valor")
+                .HasColumnType("decimal(10,2)")
+                .IsRequired();
+        });
         modelBuilder.Entity<Equipamento>(entity =>
         {
             entity.ToTable("TB_EQUIPAMENTO");
@@ -85,5 +109,31 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.IdCliente)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        modelBuilder.Entity<Categoria>(entity =>
+{
+    entity.ToTable("TB_CATEGORIA");
+
+    entity.HasKey(c => c.IdCategoria);
+
+    entity.Property(c => c.IdCategoria)
+        .HasColumnName("id_categoria");
+
+    entity.Property(c => c.Nome)
+        .HasColumnName("nome")
+        .HasMaxLength(100)
+        .IsRequired();
+
+    entity.Property(c => c.Descricao)
+        .HasColumnName("descricao")
+        .HasMaxLength(255)
+        .IsRequired();
+});
+
+        modelBuilder.Entity<Equipamento>()
+            .HasOne(e => e.Categoria)
+            .WithMany()
+            .HasForeignKey(e => e.IdCategoria)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
